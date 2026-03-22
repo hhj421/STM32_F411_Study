@@ -1,0 +1,12 @@
+*.o
+*.d
+*.axf
+*.hex
+*.lst
+*.map
+*.bak
+Build/
+Listing/
+Output/
+*.uvopt
+*.htm
