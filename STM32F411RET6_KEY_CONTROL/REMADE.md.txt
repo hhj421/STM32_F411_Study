@@ -1,0 +1,42 @@
+# STM32F411RET6 按键控制 LED 亮灭实验
+> 基于 STM32CubeMX + HAL 库，在 Nucleo-F411RE 开发板上实现板载按键控制 LED 状态翻转。
+
+## 📋 实验目的
+通过本实验，掌握 STM32 GPIO 口的基本配置（输入/输出模式），并实现按键消抖、LED 状态翻转的功能。
+
+## 🔧 实验环境与硬件
+- **开发板**：STM32 Nucleo-F411RE (STM32F411RET6)
+- **编程软件**：STM32CubeMX, Keil MDK-ARM
+- **硬件资源**：
+  - LED：板载绿灯 LD2 (对应 GPIO: **PA5**)
+  - 按键：板载 USER 键 (对应 GPIO: **PC13**，一端接地，上拉输入模式)
+
+## 🚀 快速上手
+1. **获取代码**：
+   - 点击本页面右上角的 `Code` -> `Download ZIP` 下载压缩包，或直接 Clone 到本地。
+2. **打开工程**：
+   - 进入项目文件夹，打开 `MDK-ARM` 目录下的 `.uvprojx` 工程文件（用 Keil5 打开）。
+3. **编译下载**：
+   - 点击 Keil 工具栏 `Build` 编译工程，然后点击 `Load` 将程序下载到开发板。
+4. **测试现象**：
+   - 烧录完成后，**先按下板载 RESET 按键并松开**，使系统启动。
+   - 按下 USER 按键，观察 LED 灯状态在亮/灭之间翻转。
+
+## 📝 核心代码逻辑 (`main.c`)
+主要功能是检测按键状态，并进行软件消抖，最终翻转 LED 电平。
+```c
+while (1)
+{
+    // 检测按键是否按下（PC13 为低电平表示按下）
+    if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
+    {
+        HAL_Delay(20); // 软件消抖，延时 20ms
+        
+        // 再次确认按键按下
+        if (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET)
+        {
+            HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); // 翻转 LED 状态
+            while (HAL_GPIO_ReadPin(KEY_GPIO_Port, KEY_Pin) == GPIO_PIN_RESET); // 等待按键释放
+        }
+    }
+}
